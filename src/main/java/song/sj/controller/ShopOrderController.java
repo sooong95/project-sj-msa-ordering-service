@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import song.sj.dto.order.OrderHistoryDto;
 import song.sj.enums.OrderStatus;
-import song.sj.service.ShopOrderQueryService;
 import song.sj.service.ShopOrderService;
 
 @Slf4j
@@ -16,14 +14,14 @@ import song.sj.service.ShopOrderService;
 @RequestMapping("/shop/order")
 public class ShopOrderController {
 
-    private final ShopOrderQueryService shopOrderQueryService;
+    /*private final ShopOrderQueryService shopOrderQueryService;*/
     private final ShopOrderService shopOrderService;
 
-    @GetMapping("/{shopId}")
+    /*@GetMapping("/{shopId}")
     public ResponseEntity<OrderHistoryDto> findOneShopOrder(@PathVariable("shopId") Long shopId) {
 
         return new ResponseEntity<>(shopOrderQueryService.findOneOrder(shopId), HttpStatus.OK);
-    }
+    }*/
 
     @PostMapping
     public ResponseEntity<String> changeOrderStatus(@RequestParam("orderId") Long orderId,

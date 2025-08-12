@@ -1,13 +1,12 @@
 package song.sj.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import song.sj.entity.item.Item;
+import lombok.*;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
 
@@ -20,19 +19,16 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY)
     private OrderShop orderShop;
 
-    @JoinColumn(name = "item_id")
-    @OneToOne(fetch = FetchType.LAZY)
-    private Item item;
+    private Long itemId;
 
+    private String itemName;
     private int quantity;
 
-    public static OrderItem createOrderItem(Item item, OrderShop orderShop, int quantity) {
-        OrderItem orderItem = new OrderItem();
-        orderItem.item = item;
-        item.setOrderItem(orderItem);
-        orderItem.quantity = quantity;
-        orderItem.orderShop = orderShop;
-        orderShop.getOrderItemsList().add(orderItem);
-        return orderItem;
+    public void addOrderItem(Long itemId, OrderShop orderShop, String itemName, int quantity) {
+        this.itemId = itemId;
+        this.itemName = itemName;
+        this.quantity = quantity;
+        this.orderShop = orderShop;
+        orderShop.getOrderItemsList().add(this);
     }
 }

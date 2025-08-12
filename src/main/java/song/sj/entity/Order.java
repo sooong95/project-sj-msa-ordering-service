@@ -1,9 +1,7 @@
 package song.sj.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import song.sj.TimeStamp;
 import song.sj.enums.OrderStatus;
@@ -15,7 +13,9 @@ import java.util.Objects;
 @Slf4j
 @Entity
 @Getter
-@Table(name = "orders")
+@Table(name = "ordering")
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends TimeStamp {
 
@@ -24,41 +24,41 @@ public class Order extends TimeStamp {
     @Column(name = "order_id")
     private Long id;
 
-    @JoinColumn(name = "member_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member member;
-
-    @JoinColumn(name = "delivery_id")
-    @OneToOne(fetch = FetchType.LAZY)
-    private Delivery delivery;
+    private Long memberId;
+    private Long deliveryId;
 
     @Enumerated(value = EnumType.STRING)
     private OrderStatus orderStatus;
 
+    @Builder.Default
     @OneToMany(mappedBy = "order")
     private List<OrderShop> orderShopList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "order")
-    private List<Bill> billList = new ArrayList<>();
 
-    public static void addOrderShop(Shop shop) {
+    /*private List<Long> billIdList = new ArrayList<>();*/
+
+    /*public static void addOrderShop(Long shopId) {
         Order order = new Order();
         OrderShop orderShop = new OrderShop();
         orderShop.addOrder(order);
-    }
+    }*/
 
-    public static Order setMemberAndOrderStatus(Member member) {
+    /*public static Order setMemberAndOrderStatus(Long memberId) {
 
         Order order = new Order();
-        order.member = member;
+        order.memberId = memberId;
 
         order.orderStatus = OrderStatus.ORDER;
 
         return order;
+    }*/
+
+    public void addMemberId(Long userId) {
+        this.memberId = userId;
     }
 
-    public void setDelivery(Delivery delivery) {
-        this.delivery = delivery;
+    public void setDelivery(Long deliveryId) {
+        this.deliveryId = deliveryId;
     }
 
     public void changeOrderStatus(OrderStatus orderStatus) {

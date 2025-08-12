@@ -1,3 +1,4 @@
+/*
 package song.sj.service;
 
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,6 @@ import song.sj.dto.order.OrderHistoryShopDto;
 import song.sj.entity.Order;
 import song.sj.entity.OrderItem;
 import song.sj.entity.OrderShop;
-import song.sj.repository.ItemImageRepository;
 import song.sj.repository.OrderRepository;
 import song.sj.service.image.ImageFile;
 
@@ -64,10 +64,10 @@ public class MemberOrderQueryService {
     private OrderHistoryItemDto convertToOrderHistoryItemDto(OrderItem orderItem) {
 
         return new OrderHistoryItemDto(
-                orderItem.getItem().getItemName(),
+                orderItem.getItemId().getItemName(),
                 orderItem.getQuantity(),
                 orderItem.getOrderShop().getOrder().getOrderStatus(),
-                itemImageRepository.findByItemId(orderItem.getItem().getId()).stream().map(
+                itemImageRepository.findByItemId(orderItem.getItemId().getId()).stream().map(
                         image -> imageFile.getFullPath(image.getImageName())
                 ).toList()
         );
@@ -91,3 +91,4 @@ public class MemberOrderQueryService {
     }
 
 }
+*/

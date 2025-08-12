@@ -1,3 +1,4 @@
+/*
 package song.sj.repository.query;
 
 import song.sj.entity.Order;
@@ -10,3 +11,4 @@ public interface OrderQueryRepository {
 
     Order findOneShopOrder(Long shopId);
 }
+*/

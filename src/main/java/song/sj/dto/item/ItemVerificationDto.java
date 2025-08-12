@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ItemSearchConditionDto {
+@NoArgsConstructor
+public class ItemVerificationDto {
 
-    private String itemName;
-    private String categoryName;
+    private Long itemId;
+    private int quantity;
 }

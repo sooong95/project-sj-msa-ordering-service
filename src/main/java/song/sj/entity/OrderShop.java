@@ -1,15 +1,15 @@
 package song.sj.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderShop {
 
@@ -18,28 +18,34 @@ public class OrderShop {
     @Column(name = "order_shop_id")
     private Long id;
 
-    @JoinColumn(name = "shop_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Shop shop;
-
     @JoinColumn(name = "order_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Order order;
 
+    private Long shopId;
+
+
     @OneToMany(mappedBy = "orderShop")
     private List<OrderItem> orderItemsList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "orderShop")
-    private List<Review> reviewList = new ArrayList<>();
+    /*@OneToMany(mappedBy = "orderShop")
+    private List<Review> reviewList = new ArrayList<>();*/
 
-    public static OrderShop createOrderShop(Shop shop) {
+    /*public OrderShop createOrderShop(Long shopId) {
         OrderShop orderShop = new OrderShop();
-        orderShop.shop = shop;
+        orderShop.shopId = shopId;
+        order.getOrderShopList().add(this);
 
         return orderShop;
     }
 
     public void addOrder(Order order) {
+        this.order = order;
+        order.getOrderShopList().add(this);
+    }*/
+
+    public void addOrderShop(Long shopId, Order order) {
+        this.shopId = shopId;
         this.order = order;
         order.getOrderShopList().add(this);
     }

@@ -1,0 +1,36 @@
+server:
+  port: 0
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+
+spring :
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+  application:
+    name: sj-ordering-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sj_ordering_service?useSSL=false&allowPublicKeyRetrieval=true
+    username: song
+    password: '0000'
+  jpa:
+    database: mysql
+    #    InnoDB??
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+    show_sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        default_batch_fetch_size: 300

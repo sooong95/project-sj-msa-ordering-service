@@ -1,3 +1,4 @@
+/*
 package song.sj.repository.query;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -42,3 +43,4 @@ public class OrderQueryRepositoryImpl implements OrderQueryRepository{
                 .fetchOne();
     }
 }
+*/
