@@ -1,4 +1,4 @@
-package song.sj.dto.shop;
+package song.sj.dto.external_dto.shop;
 
 import lombok.Data;
 

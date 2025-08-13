@@ -1,4 +1,4 @@
-package song.sj.dto.item;
+package song.sj.dto.external_dto.item;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -25,6 +25,7 @@ public class OrderShop {
     private Long shopId;
 
 
+    @Builder.Default
     @OneToMany(mappedBy = "orderShop")
     private List<OrderItem> orderItemsList = new ArrayList<>();
 
