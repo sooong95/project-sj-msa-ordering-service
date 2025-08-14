@@ -26,14 +26,17 @@ public class OrderItem {
     private Long itemId;
 
     private String itemName;
+    private String description;
     private int quantity;
     @Builder.Default
     private List<String> itemImagesUrl = new ArrayList<>();
 
     public void addOrderItem(Long itemId, OrderShop orderShop, String itemName,
+                             String description,
                              int quantity, List<String> itemImagesUrl) {
         this.itemId = itemId;
         this.itemName = itemName;
+        this.description = description;
         this.quantity = quantity;
         this.orderShop = orderShop;
         this.itemImagesUrl = itemImagesUrl;

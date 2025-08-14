@@ -15,6 +15,7 @@ public class ItemInfoDto {
 
     private Long itemId;
     private String itemName;
+    private String description;
     private int quantity;
     private List<String> itemImagesUrl;
 }

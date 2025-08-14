@@ -3,13 +3,12 @@ package song.sj.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import song.sj.dto.external_dto.item.ItemInfoDto;
 import song.sj.dto.external_dto.item.ItemVerificationDto;
-import song.sj.dto.order.OrderItemDto;
-import song.sj.dto.order.OrderSaveDto;
-import song.sj.dto.order.OrderShopDto;
+import song.sj.dto.order.*;
 import song.sj.dto.external_dto.shop.ShopInfoDto;
 import song.sj.entity.Order;
 import song.sj.entity.OrderItem;
@@ -21,6 +20,7 @@ import song.sj.service.feign_client.ShopServiceFeignClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -33,6 +33,7 @@ public class MemberOrderService {
     private final ShopServiceFeignClient shopServiceFeignClient;
     private final OrderShopRepository orderShopRepository;
     private final ItemServiceFeignClient itemServiceFeignClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     public void orderSave(Long userId, OrderSaveDto orderSaveDto) {
 
@@ -63,7 +64,7 @@ public class MemberOrderService {
             for (ItemInfoDto f : itemInfo) {
                 OrderItem orderItem = OrderItem.builder().build();
                 orderItem.addOrderItem(f.getItemId(), orderShop,
-                        f.getItemName(), f.getQuantity(), f.getItemImagesUrl());
+                        f.getItemName(), f.getDescription(), f.getQuantity(),f.getItemImagesUrl());
                 orderItemRepository.save(orderItem);
                 log.info("오더 아이템 확인하기 = {}", orderItem);
             }
@@ -71,9 +72,33 @@ public class MemberOrderService {
 
         order.addMemberId(userId);
         order.changeOrderStatus(OrderStatus.ORDER);
-        orderRepository.save(order);
+        Order findOrder = orderRepository.save(order);
 
         // 주문이 생성되면 kafka 비동기 통신으로 shop 에게 주문이 들어왔다고 알림.
+        sendOrderCreatedNotificationToShop(findOrder.getId());
+    }
+
+    private void sendOrderCreatedNotificationToShop(Long orderId) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다."));
+
+        for (OrderShop orderShop : order.getOrderShopList()) {
+            Long shopId = orderShop.getShopId();
+
+            List<OrderItemInfoDto> orderItemInfoDtoList = orderShop.getOrderItemsList().stream().map(item -> OrderItemInfoDto.builder()
+                    .itemId(item.getItemId())
+                    .itemName(item.getItemName())
+                    .description(item.getDescription())
+                    .build()).toList();
+
+            kafkaTemplate.send("confirm-order-topics", OrderInfoDto.builder()
+                    .count(orderItemInfoDtoList.size())
+                    .orderId(orderId)
+                    .shopId(shopId)
+                    .orderItemDtoList(orderItemInfoDtoList)
+                    .build());
+        }
     }
 
     public void orderCancel(Long orderId) {
