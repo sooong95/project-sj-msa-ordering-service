@@ -7,6 +7,9 @@ eureka:
       defaultZone: http://localhost:8761/eureka/
 
 spring :
+  zipkin:
+    base-url: http://127.0.0.1:9411
+    enabled: true
   kafka:
     kafka-server: localhost:9092
     consumer:
@@ -42,3 +45,18 @@ spring :
     properties:
       hibernate:
         default_batch_fetch_size: 300
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  tracing:
+    sampling:
+      probability: 1.0
+    propagation:
+      consume: b3
+      produce: b3_multi
+  zipkin:
+    tracing:
+      endpoint: "http://localhost:9411/api/v2/spans"
