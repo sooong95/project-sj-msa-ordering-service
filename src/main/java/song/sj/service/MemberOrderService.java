@@ -1,5 +1,6 @@
 package song.sj.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,25 +42,32 @@ public class MemberOrderService {
 
         List<Long> shopIdList = new ArrayList<>();
         Order order = Order.builder().build();
-        OrderShop orderShop = OrderShop.builder().build();
+
 
         for (OrderShopDto orderShopDto : orderSaveDto.getOrderShopList()) {
             shopIdList.add(orderShopDto.getShopId());
         }
 
-        List<ShopInfoDto> shopInfoList = shopServiceFeignClient.getShopInfo(shopIdList).getData();
+        List<ShopInfoDto> shopInfoList = getShopInfoWithCircuitBreaker(shopIdList);
 
         for (ShopInfoDto shopInfoDto : shopInfoList) {
+            OrderShop orderShop = OrderShop.builder().build();
             orderShop.addOrderShop(shopInfoDto.getShopId(), order);
             orderShopRepository.save(orderShop);
         }
 
         for (OrderShopDto orderShopDto : orderSaveDto.getOrderShopList()) {
+
+            OrderShop orderShop = order.getOrderShopList().stream()
+                    .filter(os -> os.getShopId().equals(orderShopDto.getShopId()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("해당 상점이 존재하지 않습니다."));
+
             List<ItemVerificationDto> verificationList = orderShopDto.getOrderItemList().stream()
                     .map(item -> new ItemVerificationDto(item.getItemId(), item.getQuantity()))
                     .toList();
 
-            List<ItemInfoDto> itemInfo = itemServiceFeignClient.getItemInfo(verificationList).getData();
+            List<ItemInfoDto> itemInfo = getItemInfoWithCircuitBreaker(verificationList);
 
             for (ItemInfoDto f : itemInfo) {
                 OrderItem orderItem = OrderItem.builder().build();
@@ -114,5 +122,25 @@ public class MemberOrderService {
             orderShopRepository.delete(findOrderShop);
         }
         orderRepository.delete(order);
+    }
+
+    @CircuitBreaker(name = "itemService", fallbackMethod = "fallbackItemService")
+    private List<ItemInfoDto> getItemInfoWithCircuitBreaker(List<ItemVerificationDto> verificationList) {
+        return itemServiceFeignClient.getItemInfo(verificationList).getData();
+    }
+
+    @CircuitBreaker(name = "shopService", fallbackMethod = "fallbackShopService")
+    private List<ShopInfoDto> getShopInfoWithCircuitBreaker(List<Long> shopIdList) {
+        return shopServiceFeignClient.getShopInfo(shopIdList).getData();
+    }
+
+    public List<ItemInfoDto> fallbackItemService(List<ItemVerificationDto> verificationList, Throwable t) {
+        log.error("Item Service 호출 실패, fall back 동작: {}", t.getMessage());
+        throw new RuntimeException("상품 서비스가 응답이 없어 에러가 발생 했습니다. 나중에 다시 시도해 주세요.");
+    }
+
+    public List<ShopInfoDto> fallbackShopService(List<Long> shopIdList, Throwable t) {
+        log.error("Shop Service 호출 실패, fall back 동작: {}", t.getMessage());
+        throw new RuntimeException("샵 서비스가 응답이 없어 에러가 발생 했습니다. 나중에 다시 시도해 주세요.");
     }
 }

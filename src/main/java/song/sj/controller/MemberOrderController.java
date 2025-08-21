@@ -1,5 +1,6 @@
 package song.sj.controller;
 
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ public class MemberOrderController {
     private final MemberOrderService memberOrderService;
     /*private final MemberOrderQueryService memberOrderQueryService;*/
 
+    @Timed(value = "ordering.save", longTask = true)
     @PostMapping
     public ResponseEntity<String> orderSave(@RequestHeader("X-User-Id") Long userId, @RequestBody OrderSaveDto orderSaveDto) {
 
